@@ -15,20 +15,16 @@ async function dlManga(manga_id, options, tld="org") {
         mangaInfo = await res.json()
     }
     catch (e) {
-        console.log(e)
+        console.error(e)
         return;
     }
     
     // console.log(mangaInfo.manga.title)
-
-
-
-    
     
     let chapters = mangaInfo.chapter
     
     for(const chapter_id in chapters){
-        dlChapter(chapter_id)
+        await dlChapter(chapter_id)
         // console.log(`${chapter_id}: ${JSON.stringify(chapters[chapter_id])}`)
         await wait(2000)
     }
@@ -48,14 +44,20 @@ async function dlPage(url, path, page_id){
 
 
 async function dlChapter(chapter_id, tld="org"){
+    console.log('downloading id:', chapter_id)
     let chapterInfo
     try{
         let res = await fetch(`https://mangadex.${tld}/api/chapter/${chapter_id}/`)
         chapterInfo = await res.json()
+        if(!res.ok){
+            throw chapterInfo.message
+        }
     }
     catch (e) {
-        console.log(e)
-        throw new Error('page shitteded')
+        if(chapterInfo.message)
+            console.warn(chapterInfo.message)
+        else console.warn(e)
+        return
     }
 
     // console.log( JSON.stringify(await chapterInfo, null, 2))
@@ -64,7 +66,7 @@ async function dlChapter(chapter_id, tld="org"){
     let pages = chapterInfo.page_array
     let chapterHost = chapterInfo.server + chapterInfo.hash + '/'
     let downloading = []
-
+    if(!pages) console.warn('no pages')
     // console.log(chapterHost, pages)
     // dlPage(chapterHost+pages[0], `${__dirname}/manga/${chapterInfo.id}`, pages[0]).catch((error) => {console.log('shit', error)})
 
@@ -75,12 +77,16 @@ async function dlChapter(chapter_id, tld="org"){
 
 
     await Promise.all(downloading)
-    console.log('downloaded ch', chapterInfo.title, chapterInfo.id, chapterHost)
+    console.log('done', chapterInfo.id, chapterInfo.title, chapterHost)
 }
 
-let options = {
-
+// dlManga(1, {})
+const dls = async (start, end) =>{
+    for (let index = start; index < end; index++) {
+        await dlChapter(index)
+        .then(() => {return wait(2000)})
+        .catch((e) => console.log(e))
+    }
 }
-
-dlManga(1, options)
+dls(1, 10)
 
