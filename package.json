@@ -1,0 +1,15 @@
+{
+  "name": "hypermanga",
+  "version": "1.0.0",
+  "description": "speed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hyperdrive": "^10.12.3",
+    "node-fetch": "^2.6.0"
+  }
+}
