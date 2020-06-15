@@ -4,10 +4,11 @@ const fs = require('fs');
 const mkdir = util.promisify(fs.mkdir)
 const writeFile = util.promisify(fs.writeFile)
 
+
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 
-async function dlManga(manga_id, options, tld="org") {
+async function dlManga(manga_id, options={}, tld="org") {
     let mangaInfo
     try{
         let res = await fetch(`https://mangadex.${tld}/api/manga/${manga_id}/`)
@@ -20,26 +21,16 @@ async function dlManga(manga_id, options, tld="org") {
     }
     
     // console.log(mangaInfo.manga.title)
-    
+
     let chapters = mangaInfo.chapter
-    
+    if(!!options.lang_code) chapters = chapters.filter(c => c.lang_code === lang_code)
+
     for(const chapter_id in chapters){
         await dlChapter(chapter_id)
-        // console.log(`${chapter_id}: ${JSON.stringify(chapters[chapter_id])}`)
+        // console.log(chapter_id, chapters[chapter_id]))
         await wait(2000)
     }
-}
-
-async function dlPage(url, path, page_id){
-    const response = await fetch(url);
-    const buffer = await response.buffer();
-    
-	if (response.ok) {
-        await mkdir(path, { recursive: true }); 
-        return writeFile(path+'/'+page_id, buffer)
-	}
-
-	throw new Error(`unexpected response ${response.statusText}`);
+    //TODO: return a Promise.all
 }
 
 
@@ -62,11 +53,11 @@ async function dlChapter(chapter_id, tld="org"){
 
     // console.log( JSON.stringify(await chapterInfo, null, 2))
     
-    
     let pages = chapterInfo.page_array
     let chapterHost = chapterInfo.server + chapterInfo.hash + '/'
     let downloading = []
     if(!pages) console.warn('no pages')
+
     // console.log(chapterHost, pages)
     // dlPage(chapterHost+pages[0], `${__dirname}/manga/${chapterInfo.id}`, pages[0]).catch((error) => {console.log('shit', error)})
 
@@ -78,6 +69,18 @@ async function dlChapter(chapter_id, tld="org"){
 
     await Promise.all(downloading)
     console.log('done', chapterInfo.id, chapterInfo.title, chapterHost)
+}
+
+async function dlPage(url, path, page_id){
+    const response = await fetch(url);
+    const buffer = await response.buffer();
+    
+	if (response.ok) {
+        await mkdir(path, { recursive: true }); 
+        return writeFile(path+'/'+page_id, buffer)
+	}
+
+	throw new Error(`unexpected response ${response.statusText}`);
 }
 
 // dlManga(1, {})
