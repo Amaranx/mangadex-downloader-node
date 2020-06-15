@@ -1,6 +1,6 @@
 
 a tool to download chapters from Mangadex
-##TODO
+## TODO
 use path-join
 pass in file paths
 ES6 modules
