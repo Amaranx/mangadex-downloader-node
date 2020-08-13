@@ -1,15 +1,20 @@
 {
   "name": "hypermanga",
   "version": "1.0.0",
+  "type": "module",
   "description": "speed",
   "main": "index.js",
   "scripts": {
+    "start": "node --experimental-modules ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "hyperdrive": "^10.12.3",
-    "node-fetch": "^2.6.0"
+    "ipfs": "^0.46.1",
+    "ipfs-http-client": "^45.0.0",
+    "node-fetch": "^2.6.0",
+    "orbit-db": "^0.24.2"
   }
 }
